@@ -184,7 +184,4 @@ TODO
 
 ## Deployment
 
-https://ios-roc.k.ccie.cisco.com/api/docs
-
-- The pod is deployed with 16 parallel workers
-- There is no persistence at all so the caller must ensure that the `Device` supports parallel/concurrent collections (e.g. the `Device` must serve enough VTY's)
+TODO
