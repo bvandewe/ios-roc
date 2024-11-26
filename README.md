@@ -2,8 +2,6 @@
 
 The Remote Output Collector for IOS-based devices (Classic IOS, IOS-XE).
 
-**Dev-K8s**: https://ios-roc.k.ccie.cisco.com/api/docs
-
 ## Overview
 
 The IOS ROC exposes a standardised API that enables consumers to collect CommandLine outputs for a given device.
