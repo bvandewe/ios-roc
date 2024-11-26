@@ -1,0 +1,78 @@
+name: mozart-dev
+services:
+  # http://localhost:7770/
+  keycloak77:
+    image: quay.io/keycloak/keycloak:latest
+    command:
+      - start-dev
+      - --import-realm
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KEYCLOAK_LOGLEVEL=INFO
+      - ROOT_LOGLEVEL=INFO
+    volumes:
+      - ./deployment/keycloak/:/opt/keycloak/data/import
+    ports:
+      - 7770:8080
+    networks:
+      - ldsrocnet
+
+  # http://localhost:7771/api/docs
+  ios-roc:
+    image: ios-roc
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command:
+      [
+        "sh",
+        "-c",
+        "pip install debugpy -t /tmp && python /tmp/debugpy --wait-for-client --listen 0.0.0.0:5678 -m uvicorn src.main:app --host 0.0.0.0 --port 80 --reload",
+      ]
+    ports:
+      - 7771:80
+      - 5481:5678
+    environment:
+      APP_TITLE: Cisco Certs IOS Remote Output Collector
+      APP_VERSION: 0.1.0
+      LOCAL_DEV: true
+      LOG_LEVEL: DEBUG
+      CONSUMER_GROUP: ios-roc-0
+
+      CLOUD_EVENT_SINK: http://event-player77/events/pub
+      CLOUD_EVENT_SOURCE: https://ios-roc.mysite.com
+      CLOUD_EVENT_TYPE_PREFIX: com.cisco.mozart.ios-roc
+
+      OAUTH2_SCHEME: client_credentials # authorization_code or client_credentials (use client_credentials in prod)
+      JWT_AUTHORITY: http://keycloak77:8080/realms/mozart
+      JWT_SIGNING_KEY: MIIBIjANBgkqhkiG9w0BEDQFAAOCAQ8AMIIBCgKCAQEA3TxtF/8qmJ5ENevGRICDBDH//qGGjwKFiroby6cEEDWPZw5kv1WxOLjORUNrZq5J1iY1HFMFMSrgscteTdiz9n6VLXNqt+wwe2apdIH2/XWXoUpF73/Fj8sI+zQzbL+tsHKTs86Nmqvow/hjIXQcoPmkv4vn8x6CMHcOoUIp2REC/DhygWpcZWvWkrFeUSuy/4BjcLdXbqUYY9ULJWE4akUVn5bZJEmmVD1iANCSBdteEsKA/O00zNwfSQ9EEQOo8YXKFyFPAHnwb3hQd70MtlV7lfdROv4X/KJ1XOtTfZ04vEh3hjq0swdEOfCtc106ZuBvwUctUi3leVjWXgKJrQIDAQAB
+      JWT_AUDIENCE: ios-roc
+      REQUIRED_SCOPE: api
+
+      SWAGGER_UI_JWT_AUTHORITY: http://localhost:7770/realms/mozart
+      SWAGGER_UI_CLIENT_ID: ios-roc
+      SWAGGER_UI_CLIENT_SECRET: 6Wbr0V1TtgIWJFCRSqHh1T0vYuVyG0aa # DO NOT SET IT IN PROD (unless using authorization_code)!
+
+    volumes:
+      - .:/app
+
+    networks:
+      - ldsrocnet
+
+  # http://localhost:7776/
+  event-player77:
+    image: ghcr.io/bvandewe/events-player:latest
+    ports:
+      - 7776:80
+    environment:
+      api_log_level: DEBUG
+      api_log_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+      api_default_generator_gateways: '{"urls": ["http://localhost:7776/events/pub", "http://event-player77/events/pub", "http://ios-roc/api/v1/events/pub"]}'
+      api_browser_queue_size: 2000
+    networks:
+      - ldsrocnet
+
+networks:
+  ldsrocnet:
+    driver: bridge

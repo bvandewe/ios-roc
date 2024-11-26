@@ -1,0 +1,263 @@
+{
+    "realm": "mozart",
+    "enabled": true,
+    "clients": [
+        {
+            "clientId": "ios-roc",
+            "secret": "6Wbr0V1TtgIWJFCRSqHh1T0vYuVyG0aa",
+            "redirectUris": [
+                "http://localhost:7771/docs/oauth2-redirect",
+                "http://localhost:7771/api/v1/oauth/callback"
+            ],
+            "webOrigins": [
+                "http://localhost:7771"
+            ],
+            "standardFlowEnabled": true,
+            "directAccessGrantsEnabled": true,
+            "serviceAccountsEnabled": true,
+            "defaultClientScopes": [
+                "web-origins",
+                "profile",
+                "roles",
+                "api",
+                "email"
+            ],
+            "attributes": {
+                "access.token.lifespan": "86400",
+                "use.refresh.tokens": "true",
+                "client_credentials.use_refresh_token": "false"
+            }
+        }
+    ],
+    "clientScopes": [
+        {
+            "name": "api",
+            "description": "Expected scope for secureapi test app",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true"
+            },
+            "protocolMappers": [
+                {
+                    "name": "api audience",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-audience-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "included.custom.audience": "ios-roc"
+                    }
+                },
+                {
+                    "name": "User Realm Role",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usermodel-realm-role-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "multivalued": "true",
+                        "userinfo.token.claim": "true",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "role",
+                        "jsonType.label": "String"
+                    }
+                },
+                {
+                    "name": "custom_claim",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usermodel-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "aggregate.attrs": "true",
+                        "multivalued": "true",
+                        "userinfo.token.claim": "true",
+                        "user.attribute": "custom_claim",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "custom_claim",
+                        "jsonType.label": "String"
+                    }
+                },
+                {
+                    "name": "full name",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-full-name-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "userinfo.token.claim": "true"
+                    }
+                },
+                {
+                    "name": "username",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usermodel-property-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "userinfo.token.claim": "true",
+                        "user.attribute": "username",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "preferred_username",
+                        "jsonType.label": "String"
+                    }
+                },
+                {
+                    "name": "email",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usermodel-property-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "userinfo.token.claim": "true",
+                        "user.attribute": "email",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "email",
+                        "jsonType.label": "String"
+                    }
+                },
+                {
+                    "name": "profile",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usermodel-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "userinfo.token.claim": "true",
+                        "user.attribute": "profile",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "profile",
+                        "jsonType.label": "String"
+                    }
+                }
+            ]
+        }
+    ],
+    "roles": {
+        "realm": [
+            {
+                "name": "admin",
+                "composite": false,
+                "clientRole": false,
+                "containerId": "9f3e820a-588d-479a-a16a-97e8bd90e228",
+                "attributes": {}
+            },
+            {
+                "name": "operator",
+                "composite": false,
+                "clientRole": false,
+                "containerId": "9f3e820a-588d-479a-a16a-97e8bd90e228",
+                "attributes": {}
+            },
+            {
+                "name": "tester",
+                "composite": false,
+                "clientRole": false,
+                "containerId": "9f3e820a-588d-479a-a16a-97e8bd90e228",
+                "attributes": {}
+            }
+        ]
+    },
+    "groups": [
+        {
+            "name": "admins",
+            "path": "/admins",
+            "attributes": {
+                "custom_claim": [
+                    "my_admin_claim_value"
+                ]
+            },
+            "realmRoles": [
+                "admin",
+                "operator",
+                "tester"
+            ]
+        },
+        {
+            "name": "operators",
+            "path": "/operators",
+            "attributes": {
+                "custom_claim": [
+                    "my_operator_claim_value"
+                ]
+            },
+            "realmRoles": [
+                "operator",
+                "tester"
+            ]
+        },
+        {
+            "name": "testers",
+            "path": "/testers",
+            "attributes": {
+                "custom_claim": [
+                    "my_tester_claim_value"
+                ]
+            },
+            "realmRoles": [
+                "tester"
+            ]
+        }
+    ],
+    "users": [
+        {
+            "username": "root",
+            "enabled": true,
+            "emailVerified": true,
+            "firstName": "Root",
+            "lastName": "Mozart",
+            "email": "root@mozart.org",
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "test",
+                    "temporary": false
+                }
+            ],
+            "groups": [
+                "admins",
+                "operators",
+                "testers"
+            ]
+        },
+        {
+            "username": "ops",
+            "enabled": true,
+            "emailVerified": true,
+            "firstName": "Operations",
+            "lastName": "Mozart",
+            "email": "ops@mozart.org",
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "test",
+                    "temporary": false
+                }
+            ],
+            "groups": [
+                "operators",
+                "testers"
+            ]
+        },
+        {
+            "username": "support",
+            "enabled": true,
+            "emailVerified": true,
+            "firstName": "Support",
+            "lastName": "Mozart",
+            "email": "support@mozart.org",
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "test",
+                    "temporary": false
+                }
+            ],
+            "groups": [
+                "testers"
+            ]
+        }
+    ]
+}

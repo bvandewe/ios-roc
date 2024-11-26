@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ios-roc
+  namespace: mozart
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ios-roc
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: ios-roc
+        version: v1
+    spec:
+      containers:
+      - name: ios-roc
+        image: ghcr.io/bvandewe/ios-roc/ios-roc:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        env:
+        - name: APP_TITLE
+          value: Cisco IOS Remote Output Collector
+        - name: LOG_LEVEL
+          value: DEBUG
+        - name: CONSUMER_GROUP
+          value: ios-roc-0
+        - name: CLOUD_EVENT_SINK
+          value: http://gateway.cloud-streams/api/events/pub
+        - name: CLOUD_EVENT_SOURCE
+          value: https://ios-roc.mysite.com
+        - name: CLOUD_EVENT_TYPE_PREFIX
+          value: com.mysite.mozart.ios-roc
+        - name: OAUTH2_SCHEME
+          value: client-credentials
+        - name: JWT_AUTHORITY
+          value: https://keycloak-dev.mysite.com/auth/realms/mozart
+        - name: JWT_SIGNING_KEY
+          value: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjyLF1dS020c59+a7p5/ewOLiEyhIHxYWEDCCVSJy9EFyaFzl+rcr+gkMXFB0OUcbeYkPrJ39O4A/DPF/EEDxruCOI1M1aJlS8YX3axIqxjbKvVgpgFLeKx+maZyXXmN8JxX+GVAL1bJmuO2OrqecKaTXYED3j69//wsFb3Yw/E7a1yGUQwvCr1UFQMv9Lvv2/2W1HB64mqWx+hJVEGQ9e+rcPTnrb1SKGOXiC0rhrwGTuIaHBlbINWg+HIVer0ZN3ZBd0aq5Fhow5a5K73vgS0uVs4Z5LqmpE+goWA6JCGoeNULNrVg+I/GFG5VnSEQk7mxX/p8THp/n3KtsGlZivwIDAQAB
+        - name: JWT_AUDIENCE
+          value: ios-roc
+        - name: REQUIRED_SCOPE
+          value: api
+        - name: SWAGGER_UI_JWT_AUTHORITY
+          value: https://keycloak-dev.mysite.com/auth/realms/mozart
+        - name: SWAGGER_UI_CLIENT_ID
+          value: ios-roc
+        - name: SWAGGER_UI_CLIENT_SECRET
+          value: 26d86ce3-bd63-4c8f-b0fe-f35f20f3d024
+
+
+---
+
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: ios-roc
+  namespace: mozart
+spec:
+  gateways:
+  - istio-system/all-gateway
+  hosts:
+  - ios-roc.mysite.com
+  http:
+  - route:
+    - destination:
+        host: ios-roc
+        port:
+          number: 80
+
+
+---
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: ios-roc
+  namespace: mozart
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: web
+  selector:
+    app: ios-roc
