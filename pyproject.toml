@@ -6,10 +6,6 @@ authors = ["Bruno van de Werve <bvandewe@cisco.com>"]
 license = "MIT"
 readme = "README.md"
 
-[[tool.poetry.source]]
-name = "github"
-url = "https://__token__:<your_github_token>@github.com/<your_username>/<your_repo>/packages"
-priority = "supplemental"
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -33,7 +29,7 @@ multipledispatch = "1.0.0"
 mypy = "1.8.0"
 mypy-extensions = "1.0.0"
 netmiko = "^4.4.0"
-neuroglia = { version = "0.0.23", source = "github" }
+neuroglia-python = "0.0.23"
 packaging = "23.2"
 pluggy = "^1"
 protobuf = "4.25.2"
